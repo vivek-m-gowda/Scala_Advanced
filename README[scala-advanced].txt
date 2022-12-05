@@ -529,3 +529,76 @@ FUNCTIONAL CONCURRENT PROGRAMMING
 		Run the block of the computation code in an ExecutionContext by calling the execute method on the ExecutionContext. When the execution succeeds, 
 		we call the success() method of Promise to set the value of the completed computation. If the computation fails, we call the failure() method to change the state of Promise to failure.
 		Return the Future, which will contain the value of our Promise.
+		
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+IMPLICITS
+
+5.1	Enter Implicits
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+>>	Implicit parameters are the parameters that are passed to a function with implicit keyword in Scala, 
+		which means the values will be taken from the context in which they are called. 
+		In simpler terms, if no value or parameter is passed to a method or function, then the compiler will look for implicit value and pass it further as the parameter. 
+
+>>	For example, changing an integer variable to a string variable can be done by a Scala compiler rather than calling it explicitly. 
+		When implicit keyword used in the parameter scope of the function, all the parameters are marked as implicit.
+
+			  case class Person(name: String) {
+				def greet = s"Hi, my name is $name!"
+			  }
+
+			  implicit def fromStringToPerson(str: String): Person = Person(str)
+			  println("Peter".greet) // println(fromStringToPerson("Peter").greet)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5.2	Type Class
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+>>	A type class is a group of types that satisfy a contract typically defined by a trait. 
+		They enable us to make a function more ad-hoc polymorphic without touching its code. 
+		This flexibility is the biggest win with the type-class pattern.
+
+		A type class is a type system construct that supports ad hoc polymorphism. 
+		This is achieved by adding constraints to type variables in parametrically polymorphic types. 
+		Such a constraint typically involves a type class T and a type variable a, 
+		and means that a can only be instantiated to a type whose members support the overloaded operations associated with T
+
+			  trait HTMLSerializer[T] {
+				def serialize(value: T): String
+			  }
+
+			  implicit object UserSerializer extends HTMLSerializer[User] {
+				def serialize(user: User): String = s"<div>${user.name} (${user.age} yo) <a href=${user.email}/> </div>"
+			  }
+
+			  val john = User("John", 32, "john@rockthejvm.com")
+			  println(UserSerializer.serialize(john))
+
+
+>>	type enrichment = pimping
+>>	compiler doesn't do multiple implicit searches.
+
+		  implicit class RichInt(val value: Int) extends AnyVal {
+			def isEven: Boolean = value % 2 == 0
+
+			def sqrt: Double = Math.sqrt(value)
+		  new RichInt(42).sqrt
+
+		  42.isEven // new RichInt(42).isEven
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
