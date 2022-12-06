@@ -586,19 +586,153 @@ IMPLICITS
 		  new RichInt(42).sqrt
 
 		  42.isEven // new RichInt(42).isEven
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+MASTERING THE TYPE SYSTEM
 
+6.1	Advanced Inheritance
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+>>	Scala is a unique language in that it’s statically typed, but often feels flexible and dynamic. 
+		For instance, thanks to type inference you can write code like this without explicitly specifying the variable types:
+			val a = 1
+			val b = 2.0
+			val c = "Hi!"
+				
+>>	Benefits of types
+		Statically-typed programming languages offer a number of benefits, including:
 
+		*	Helping to provide strong IDE support
+		*	Eliminating many classes of potential errors at compile time
+		*	Assisting in refactoring
+		*	Providing strong documentation that cannot be outdated since it is type checked
 
+		  // convenience
+		  trait Writer[T] {
+			def write(value: T): Unit
+		  }
 
+		  trait Closeable {
+			def close(status: Int): Unit
+		  }
 
+		  trait GenericStream[T] {
+			// some methods
+			def foreach(f: T => Unit): Unit
+		  }
 
+		  def processStream[T](stream: GenericStream[T] with Writer[T] with Closeable): Unit = {
+			stream.foreach(println)
+			stream.close(0)
+		  }
 
+>>	Variance
+		Variance lets you control how type parameters behave with regards to subtyping. 
+		Scala supports variance annotations of type parameters of generic classes, to allow them to be covariant, contravariant, or invariant if no annotations are used. 
+		The use of variance in the type system allows us to make intuitive connections between complex types.
 
+		class Foo[+A] // A covariant class
+		class Bar[-A] // A contravariant class
+		class Baz[A]  // An invariant class
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+6.2	Type Members
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+>>	A member of a class or trait is said to be abstract if that particular member does not have a complete definition in the class. 
+		These Abstract members are always implemented in any sub-classes of the class under which it is defined. 
+		These kinds of declaration are allowed in many programming languages and is one of the key feature of object oriented programming languages. Scala also allows to declare such methods as shown in the example below:
 
-
-
+		abstract class Sample{
+		  def contents: Array[String]
+		  def width: Int = a
+		  def height: Int = b
+		}
+		Thus in the above class Sample we have declared three methods: contents, width and height. 
+		The implementation of the last two methods is already defined whereas in the first method, contents, does not have any kind of implementation mentioned.
 		
+		  class Animal
+		  class Dog extends Animal
+		  class Cat extends Animal
+
+		  class AnimalCollection {
+			type AnimalType // abstract type member
+			type BoundedAnimal <: Animal
+			type SuperBoundedAnimal >: Dog <: Animal
+			type AnimalC = Cat
+		  }
+
+		  val ac = new AnimalCollection
+		  val dog: ac.AnimalType = ???
+
+		  //  val cat: ac.BoundedAnimal = new Cat 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6.3	Path Dependent Types
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+>>	A dependent type is a type whose definition depends on a value. 
+		Suppose we can write a List that has a constraint on the size of the List, for example, NonEmptyList. Also, 
+		assume another type like AtLeastTwoMemberList.
+
+>>	A path-dependent type is a specific kind of dependent type where the dependent-upon value is a path. 
+		Scala has a notion of a type dependent on a value. This dependency is not expressed in the type signature but rather in the type placement.
+
+		  class Outer {
+			class Inner
+			object InnerObject
+			type InnerType
+			def print(i: Inner) = println(i)
+			def printGeneral(i: Outer#Inner) = println(i)
+		  }
+
+		  def aMethod: Int = {
+			class HelperClass
+			type HelperType = String
+			2
+		  }
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6.4	Self Types
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+>>	Self-types are a way to declare that a trait must be mixed into another trait, even though it doesn’t directly extend it. 
+		That makes the members of the dependency available without imports.
+
+>>	A self-type is a way to narrow the type of this or another identifier that aliases this. 
+		The syntax looks like normal function syntax but means something entirely different.
+
+>>	To use a self-type in a trait, write an identifier, the type of another trait to mix in, and a => (e.g. someIdentifier: SomeOtherTrait =>).
+
+		trait User:
+		  def username: String
+
+		trait Tweeter:
+		  this: User =>  // reassign this
+		  def tweet(tweetText: String) = println(s"$username: $tweetText")
+
+		class VerifiedTweeter(val username_ : String) extends Tweeter, User:  // We mixin User because Tweeter required it
+		  def username = s"real $username_"
+
+		val realBeyoncé = VerifiedTweeter("Beyoncé")
+		realBeyoncé.tweet("Just spilled my glass of lemonade")  // prints "real Beyoncé: Just spilled my glass of lemonade"
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6.5	F bounded polymorphism
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+>>	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
